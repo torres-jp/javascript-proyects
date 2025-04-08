@@ -23,7 +23,7 @@ A continuación se irá listando cada uno de los proyectos incluidos en este rep
    cd tu-repositorio
    ```
 
-   Abre la carpeta del proyecto que quieras probar.
+\*\* Abre la carpeta del proyecto que quieras probar.
 
 Abre el archivo index.html de ese proyecto en tu navegador.
 
@@ -37,7 +37,8 @@ CSS3
 
 Dependiendo del proyecto, podrían añadirse otras tecnologías como frameworks, librerías o herramientas.
 
-📚 Propósito
+## 📚 Propósito
+
 Este repositorio nace con el fin de:
 
 Aprender haciendo.

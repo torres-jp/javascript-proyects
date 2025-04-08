@@ -57,6 +57,31 @@ const piece = {
     ],
 }
 
+
+const PIECES = [
+    [
+        [1, 1],
+        [1, 1],
+    ],
+    [
+        [1, 1, 1, 1],
+    ],
+    [
+        [0, 1, 0],
+        [1, 1, 1],
+    ],
+    [
+        [1, 1, 0],
+        [0, 1, 1],
+    ],
+    [
+        [1, 0],
+        [1, 0],
+        [1, 1],
+    ]
+]
+
+
 // 2° game loop
 // function update() {
 //     draw()
@@ -132,6 +157,19 @@ document.addEventListener('keydown', (event) => {
             removeRows()
         }
     }
+
+
+    if (event.key === 'ArrowUp') {
+        const rotated = []
+
+        for (let i = 0; i < piece.shape[0].length; i++) {
+            const row = []
+
+            for (let j = piece.shape.length - 1; j >= 0; j--) {
+
+            }
+        }
+    }
 })
 
 function checkCollision() {
@@ -152,8 +190,18 @@ function solidifyPiece() {
             }
         })
     })
-    piece.position.x = 0
+
+    //reset position of the piece
+    piece.position.x = Math.floor(BOARD_WIDTH / 2 - 2)
     piece.position.y = 0
+
+    // get random shape piece
+    piece.shape = PIECES[Math.floor(Math.random() * PIECES.length)]
+
+    if (checkCollision()) {
+        window.alert('GAME OVER')
+        board.forEach((row) => row.fill(0))
+    }
 }
 
 function removeRows() {
