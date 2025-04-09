@@ -10,8 +10,8 @@ Cada proyecto está contenido en su propia carpeta dentro del repositorio. Puede
 
 A continuación se irá listando cada uno de los proyectos incluidos en este repositorio:
 
-- [ ] Proyecto 1: _Tetris con JavaSCript_
-- [ ] Proyecto 2: _(por completar)_
+- [ x ] Proyecto 1: _Tetris con JavaSCript_
+- [ x ] Proyecto 2: _Pomodoro With JavaScript, HTML, CSS_
 - [ ] Proyecto 3: _(por completar)_
 
 ## 🚀 Cómo usar este repositorio
