@@ -81,8 +81,32 @@ function timeHandler(id) {
         markCompleted(id)
         // current = null
         // taskName.textContent = ''
+        timer = null
         renderTask()
+        startBreak()
 
+    }
+}
+
+function startBreak() {
+    time = 3
+    taskName.textContent = 'Break'
+    timerBreak = setInterval(() => {
+        timeHandlerBreak()
+    }, 1000)
+}
+
+function timeHandlerBreak() {
+    timer--
+    renderTime()
+
+    if (time === 0) {
+        clearInterval(timerBreak)
+        current = null
+        timerBreak = null
+        taskName.textContent = ''
+
+        renderTask()
     }
 }
 
