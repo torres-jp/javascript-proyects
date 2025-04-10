@@ -11,6 +11,9 @@ const itTask = document.querySelector('#itTask')
 const form = document.querySelector('#form')
 const taskName = document.querySelector('#time #taskName')
 
+renderTime()
+renderTask()
+
 form.addEventListener('submit', e => {
     e.preventDefault()
     if (itTask.value !== '') {
@@ -79,8 +82,6 @@ function timeHandler(id) {
     if (time === 0) {
         clearInterval(timer)
         markCompleted(id)
-        // current = null
-        // taskName.textContent = ''
         timer = null
         renderTask()
         startBreak()
@@ -89,15 +90,15 @@ function timeHandler(id) {
 }
 
 function startBreak() {
-    time = 3
+    time = 3 //5 * 60
     taskName.textContent = 'Break'
     timerBreak = setInterval(() => {
-        timeHandlerBreak()
+        timerBreakHandler()
     }, 1000)
 }
 
-function timeHandlerBreak() {
-    timer--
+function timerBreakHandler() {
+    time--
     renderTime()
 
     if (time === 0) {
@@ -105,7 +106,6 @@ function timeHandlerBreak() {
         current = null
         timerBreak = null
         taskName.textContent = ''
-
         renderTask()
     }
 }
