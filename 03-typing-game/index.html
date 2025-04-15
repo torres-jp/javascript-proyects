@@ -131,7 +131,21 @@
     }, 1000)
   }
 
-  function initEvents() {}
+  function initEvents() {
+    document.addEventListener('keydown', () => {
+      $input.focus()
+    })
+
+    $input.addEventListener('keydown', onKeyDown)
+    $input.addEventListener('keyup', onKeyUp)
+  }
+
+  function unKeyDown() {}
+
+  function onKeyUp() {
+    const $currentWord = $paragraph.querySelector('word.active')
+  }
+
   function gameOver() {
     console.log('Game Over')
   }
