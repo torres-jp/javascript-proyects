@@ -1,3 +1,5 @@
+<!-- 00:49:58 -->
+
 <title>Monkey Type Clone</title>
 <style>
   :root {
@@ -60,6 +62,18 @@
       position: absolute;
       left: -65%;
       animation: 1s blink infinite ease-in-out;
+    }
+
+    &.active.is-last::before {
+      left: 65%;
+    }
+
+    &.correct {
+      color: var(--green);
+    }
+
+    &.incorrect {
+      color: var(--red);
     }
   }
 
@@ -140,10 +154,44 @@
     $input.addEventListener('keyup', onKeyUp)
   }
 
-  function unKeyDown() {}
+  function onKeyDown(event) {
+    const { key } = event
+    if (key === ' ') {
+      event.preventDefault()
+    }
+  }
 
   function onKeyUp() {
     const $currentWord = $paragraph.querySelector('word.active')
+    const $currentLetter = $currentWord.querySelector('letter.active')
+
+    const currentWord = $currentWord.innerText.trim()
+    $input.maxLength = currentWord.length
+
+    const $allLetters = $currentWord.querySelectorAll('letter')
+    $allLetters.forEach(($letter) => {
+      $letter.classList.remove('correct', 'incorrect')
+    })
+
+    $input.value.split('').forEach((char, index) => {
+      const $letter = $allLetters[index]
+      const letterToCheck = currentWord[index]
+
+      const isCorrect = char === letterToCheck
+      const letterClass = isCorrect ? 'correct' : 'incorrect'
+      $letter.classList.add(letterClass)
+    })
+
+    $currentLetter.classList.remove('active', 'is-last')
+    const inputLength = $input.value.length
+    const $nextActiveLetter = $allLetters[inputLength]
+
+    if ($nextActiveLetter) {
+      $nextActiveLetter.classList.add('active')
+    } else {
+      $currentLetter.classList.add('active', 'is-last')
+      // TODO: gameover
+    }
   }
 
   function gameOver() {
