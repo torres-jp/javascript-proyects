@@ -1,4 +1,4 @@
-<!-- 00:49:58 -->
+<!-- 01:20:00 -->
 
 <title>Monkey Type Clone</title>
 <style>
@@ -41,7 +41,7 @@
     top: 0;
     left: 0;
     pointer-events: none;
-    /* opacity: 0; */
+    opacity: 0;
   }
 
   p {
@@ -96,6 +96,14 @@
       opacity: 0;
     }
   }
+
+  #game {
+    display: flex;
+  }
+
+  #results {
+    display: none;
+  }
 </style>
 
 <body>
@@ -105,18 +113,30 @@
       <p></p>
       <input autofocus />
     </section>
+
+    <section id="results">
+      <h2>wpm</h2>
+      <h3></h3>
+
+      <h2>accuracy</h2>
+      <h3></h3>
+    </section>
   </main>
 </body>
 
-<script>
+<script type="module">
+  import { words as INITIAL_WORDS } from './data.js'
+
   const $time = document.querySelector('time')
   const $paragraph = document.querySelector('p')
   const $input = document.querySelector('input')
 
-  const INITIAL_TIME = 30
+  const $game = document.querySelector('#game')
+  const $results = document.querySelector('#results')
+  const $wpm = document.querySelector('h3')
+  const $accuracy = document.querySelector('h3:last-child')
 
-  const TEXT =
-    'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Tempora illum at, consequatur ad fugiat sint ullam velit, itaque dolor id iusto laudantium facilis perferendis hic deserunt expedita, nulla esse atque perspiciatis eligendi?'
+  const INITIAL_TIME = 30
 
   let words = []
   let currentTime = INITIAL_TIME
@@ -125,12 +145,12 @@
   initEvents()
 
   function initGame() {
-    words = TEXT.split(' ').slice(0, 32)
+    words = INITIAL_WORDS.toSorted(() => Math.random() - 0.5).slice(0, 50)
 
     $time.textContent = currentTime
 
     $paragraph.innerHTML = words
-      .map((word, index) => {
+      .map((word) => {
         const letters = word.split('')
 
         return `<word>
@@ -147,7 +167,7 @@
       currentTime--
       $time.textContent = currentTime
 
-      if (currentTime === 0) {
+      if (currentTime <= 0) {
         clearInterval(intervalId)
         gameOver()
       }
@@ -172,20 +192,20 @@
       event.preventDefault()
 
       const $nextWord = $currentWord.nextElementSibling
-      const $nextLetter = $nextWord.querySelector('letter')
+      const $nextLetter = $nextWord?.querySelector('letter')
 
       $currentWord.classList.remove('active', 'marked')
       $currentLetter.classList.remove('active')
 
-      $nextWord.classList.add('active')
-      $nextLetter.classList.add('active')
+      $nextWord?.classList.add('active')
+      $nextLetter?.classList.add('active')
 
       $input.value = ''
 
-      const hansMissedLetters =
+      const hasMissedLetters =
         $currentWord.querySelectorAll('letter:not(.correct)').length > 0
 
-      const classToAdd = hansMissedLetters ? 'marked' : 'correct'
+      const classToAdd = hasMissedLetters ? 'marked' : 'correct'
       $currentWord.classList.add(classToAdd)
       return
     }
@@ -194,14 +214,31 @@
       const $prevWord = $currentWord.previousElementSibling
       const $prevLetter = $currentLetter.previousElementSibling
 
-      if (!prevWord && !prevLetter) {
+      if (!$prevWord && !$prevLetter) {
         event.preventDefault()
         return
       }
 
-      if (!$prevLetter) {
+      const $wordMarked = $paragraph.querySelector('word.marked')
+
+      if ($wordMarked && !$prevLetter) {
         event.preventDefault()
-        const $wordMarked = $paragraph.querySelector('word', 'marked')
+
+        $prevWord.classList.remove('marked')
+        $prevWord.classList.add('active')
+
+        const $letterToGo = $prevWord.querySelector('letter:last-child')
+
+        $currentLetter.classList.remove('active')
+        $letterToGo.classList.add('active')
+
+        $input.value = [
+          ...$prevWord.querySelectorAll('letter.correct, letter.incorrect'),
+        ]
+          .map(($el) =>
+            $el.classList.contains('correct') ? $el.innerText : '*'
+          )
+          .join('')
       }
     }
   }
@@ -235,11 +272,17 @@
       $nextActiveLetter.classList.add('active')
     } else {
       $currentLetter.classList.add('active', 'is-last')
-      // TODO: gameover
+      // TODO: Implement game over logic if needed
     }
   }
 
   function gameOver() {
     console.log('Game Over')
+    // Additional game over logic can be added here
+    $game.style.display = 'none'
+    $results.style.display = 'flex'
+
+    const correctWords = $paragraph.querySelectorAll('word.correct').length
+    const correctLetters = $paragraph.querySelectorAll('letter.correct').length
   }
 </script>
