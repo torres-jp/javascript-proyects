@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="style.css" />
     <title>Tier Maker</title>
   </head>
+
   <body>
     <header id="top-header">
       <img
@@ -54,7 +55,7 @@
 
     <footer id="selector">
       <section id="selector-button">
-        <button>
+        <label>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -65,14 +66,14 @@
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="icon icon-tabler icons-tabler-outline icon-tabler-circle-plus"
           >
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
             <path d="M9 12h6" />
             <path d="M12 9v6" />
           </svg>
-        </button>
+          <input accept="image/*" type="file" hidden id="image-input" />
+        </label>
 
         <button>
           <svg
@@ -85,7 +86,6 @@
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="icon icon-tabler icons-tabler-outline icon-tabler-rotate-clockwise"
           >
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5" />
