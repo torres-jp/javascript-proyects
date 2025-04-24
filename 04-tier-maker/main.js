@@ -75,3 +75,9 @@ function handleDragEnd(event) {
   draggedElement = null
   sourceContainer = null
 }
+
+function handleDragEnd(event) {
+  console.log('drag end', event.target)
+  draggedElement = null
+  sourceContainer = null
+}
