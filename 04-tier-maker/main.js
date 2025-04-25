@@ -44,7 +44,7 @@ rows.forEach((row) => {
 
 function handleDrop(event) {
   event.preventDefault()
-  const { currtentTarget, dataTransfer } = event
+  const { currentTarget, dataTransfer } = event
 
   if (sourceContainer && draggedElement) {
     sourceContainer.removeChild(draggedElement)
@@ -52,14 +52,16 @@ function handleDrop(event) {
 
   if (draggedElement) {
     const src = dataTransfer.getData('text/plain')
-    const imgElement = createItems()
-    currtentTarget.appendChild(imgElement)
+    const imgElement = createItems(src)
+    currentTarget.appendChild(imgElement)
   }
 }
 
 function handleOver(event) {
   event.preventDefault()
-  const { currentTarget, dataTransfer } = event
+  const { currentTarget } = event
+
+  if (sourceContainer === currentTarget) return
 }
 
 function handleDragLeave(event) {}
@@ -68,12 +70,6 @@ function handleDragStart(event) {
   draggedElement = event.target
   sourceContainer = draggedElement.parentNode
   event.dataTransfer.setData('text/plain', draggedElement.src)
-}
-
-function handleDragEnd(event) {
-  console.log('drag end', event.target)
-  draggedElement = null
-  sourceContainer = null
 }
 
 function handleDragEnd(event) {
