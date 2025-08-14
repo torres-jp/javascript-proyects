@@ -1,4 +1,4 @@
-import { $, $$ } from './doom.js'
+import { $ } from './doom.js'
 
 class GoogleTranslator {
   static SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'ja']
@@ -21,6 +21,7 @@ class GoogleTranslator {
     this.init()
     this.setupEventListeners()
 
+    this.translationTimeout = null
     this.currentTranslator = null
     this.currentDetector = null
   }
@@ -32,7 +33,7 @@ class GoogleTranslator {
 
     this.sourceLanguage = $('#sourceLanguage')
     this.targetLanguage = $('#targetLanguage')
-    this.swapLanguage = $('#swapLanguages')
+    this.swapLanguages = $('#swapLanguages')
 
     this.micButton = $('#micButton')
     this.copyButton = $('#copyButton')
@@ -62,17 +63,66 @@ class GoogleTranslator {
   setupEventListeners() {
     this.inputText.addEventListener('input', () => {
       // Actualizar el contador de letras
-      // Traducir el texto con un debounce
+      this.debounceTranslate()
     })
 
     this.sourceLanguage.addEventListener('change', () => this.translate())
     this.targetLanguage.addEventListener('change', () => this.translate())
 
-    this.swapLanguage.addEventListener('click', () => this.swapLanguage())
+    this.swapLanguages.addEventListener('click', () => this.swapLanguages())
   }
 
-  translate() {
-    // TODO!
+  debounceTranslate() {
+    clearTimeout(this.translationTimeout)
+    this.translationTimeout = setTimeout(() => {
+      this.translate()
+    }, 500)
+  }
+
+  async getTranslation(text) {
+    const sourceLanguage = this.sourceLanguage.value
+    const targetLanguage = this.targetLanguage.value
+
+    if (sourceLanguage === targetLanguage) return text
+
+    // revisar la disponibilidad de traduccion entre origen y target.
+    try {
+      const status = await window.Translator.availability({
+        sourceLanguage,
+        targetLanguage,
+      })
+
+      if (status === 'unavailable') {
+        throw new Error(
+          `Traduccion de ${sourceLanguage} a ${targetLanguage} no disponible`
+        )
+      }
+    } catch (error) {
+      console.error(error)
+      throw new Error(
+        `Traduccion de ${sourceLanguage} a ${targetLanguage} no disponible`
+      )
+    }
+
+    // Realizar la traduccion
+  }
+
+  async translate() {
+    const text = this.inputText.value.trim()
+    if (!text) {
+      this.outputText.textContent = ''
+      return
+    }
+
+    this.outputText.textContent = 'Traduciendo...'
+
+    try {
+      const translation = await this.getTranslation(text)
+      this.outputText.textContent = translation
+    } catch (error) {
+      console.error(error)
+      this.outputText.textContent = 'Error al traducir'
+    }
   }
 
   swapLanguage() {
