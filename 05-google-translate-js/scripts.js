@@ -23,6 +23,7 @@ class GoogleTranslator {
 
     this.translationTimeout = null
     this.currentTranslator = null
+    this.currentTranslatorKey = null
     this.currentDetector = null
   }
 
@@ -85,6 +86,11 @@ class GoogleTranslator {
 
     if (sourceLanguage === targetLanguage) return text
 
+    const hasSupport = this.checkAPISupport()
+    if (!hasSupport) {
+      this.outputText.textContent = '!Error no tienes soporte nativo a la API'
+    }
+
     // revisar la disponibilidad de traduccion entre origen y target.
     try {
       const status = await window.Translator.availability({
@@ -105,6 +111,33 @@ class GoogleTranslator {
     }
 
     // Realizar la traduccion
+    const translatorkey = `${sourceLanguage}-${targetLanguage}`
+
+    try {
+      if (
+        !this.currentTranslator ||
+        this.currentTranslatorKey !== translatorkey
+      ) {
+        this.currentTranslator = await window.Translator.create({
+          sourceLanguage,
+          targetLanguage,
+          monitor: (monitor) => {
+            monitor.addEventListener('downloadprogress', (e) => {
+              this.outputText.innerHTML = `<span class="loading">Descargando modelo: ${Math.floor(
+                e.loaded * 100
+              )}%</span>`
+            })
+          },
+        })
+      }
+      this.currentTranslatorKey = translatorkey
+
+      const translation = await this.currentTranslator.translate(text)
+      return translation
+    } catch (error) {
+      console.error(error)
+      return 'Error al traducir'
+    }
   }
 
   async translate() {
