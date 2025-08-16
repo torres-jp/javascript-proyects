@@ -86,11 +86,6 @@ class GoogleTranslator {
 
     if (sourceLanguage === targetLanguage) return text
 
-    const hasSupport = this.checkAPISupport()
-    if (!hasSupport) {
-      this.outputText.textContent = '!Error no tienes soporte nativo a la API'
-    }
-
     // revisar la disponibilidad de traduccion entre origen y target.
     try {
       const status = await window.Translator.availability({
@@ -154,12 +149,37 @@ class GoogleTranslator {
       this.outputText.textContent = translation
     } catch (error) {
       console.error(error)
+      const hasSupport = this.checkAPISupport()
+      if (!hasSupport) {
+        this.outputText.textContent = '!Error no tienes soporte nativo a la API'
+        return
+      }
       this.outputText.textContent = 'Error al traducir'
     }
   }
 
-  swapLanguage() {
-    // intercambiar idiomas entre el sourceLanguage y el targetlanguage
+  async swapLanguage() {
+    // primero detectar si sourcelanguage es 'auto' para saber
+    // que idioma pasar al output
+
+    // intercambiar los valores
+    const temporalLanguage = this.sourceLanguage.value
+    this.sourceLanguage.value = this.targetLanguage.value
+    this.targetLanguage.value = temporalLanguage
+
+    // intercambiar los textos
+    this.inputText.value = this.outputText.value
+    this.outputText.value = ''
+
+    if (this.inputText.value.trim()) {
+      this.translate()
+    }
+
+    // restaurar la opcion de auto-detectar
+  }
+
+  async detecLanguage() {
+    return 'es'
   }
 }
 
