@@ -73,6 +73,8 @@ class GoogleTranslator {
     this.swapLanguagesButton.addEventListener('click', () =>
       this.swapLanguages()
     )
+    this.micButton.addEventListener('click', () => this.startVoiceRecognition())
+    this.speakerButton.addEventListener('click', () => this.speakTranslation())
   }
 
   debounceTranslate() {
@@ -182,12 +184,87 @@ class GoogleTranslator {
     }
   }
 
+  getFullLangageCode(languageCode) {
+    return (
+      GoogleTranslator.FULL_LANGUAGES_CODES[languageCode] ??
+      GoogleTranslator.DEFAULT_SOURCE_LANGUAGE
+    )
+  }
+
+  async startVoiceRecognition() {
+    const hasNativeRecognitionSupport =
+      'SpeechRecognition' in window || 'webkitSpeechRecognition' in window
+    if (!hasNativeRecognitionSupport) return
+
+    const SpeechRecognition =
+      window.SpeechRecognition ?? window.webkitSpeechRecognition
+    const recognition = new SpeechRecognition()
+
+    recognition.continuous = false
+    recognition.interimResults = false
+
+    const language =
+      this.sourceLanguage.value === 'auto'
+        ? await this.detectLanguage(this.inputText.value)
+        : this.sourceLanguage.value
+
+    recognition.lang = this.getFullLangageCode(language)
+
+    recognition.onstart = () => {
+      this.micButton.style.backgroundColor = 'var(--google-red)'
+      this.micButton.style.color = 'white'
+    }
+
+    recognition.onend = () => {
+      this.micButton.style.backgroundColor = ''
+      this.micButton.style.color = ''
+    }
+
+    recognition.onresult = (event) => {
+      console.log(event.results)
+
+      const [{ transcript }] = event.results[0]
+      this.inputText.value = transcript
+      this.translate()
+    }
+
+    recognition.onerror = (event) => {
+      console.error('Error de reconocimiento de voz: ', event.error)
+    }
+
+    recognition.start()
+  }
+
+  speakTranslation() {
+    const hasNativeSupportSynthesis = 'SpeechSynthesis' in window
+    if (!hasNativeSupportSynthesis) return
+
+    const text = this.outputText.textContent
+    if (!text) return
+
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lan = this.getFullLangageCode(this.targetLanguage.value)
+    utterance.rate = 0.8
+
+    utterance.onstart = () => {
+      this.speakerButton.style.backgroundColor = 'var(--google-green)'
+      this.speakerButton.style.color = 'white'
+    }
+
+    utterance.onend = () => {
+      this.speakerButton.style.backgroundColor = ''
+      this.speakerButton.style.color = ''
+    }
+
+    window.speechSynthesis.speak(utterance)
+  }
+
   async swapLanguages() {
     // primero detectar si sourcelanguage es 'auto' para saber
     // que idioma pasar al output
     if (this.sourceLanguage.value === 'auto') {
-      const detectdLanguage = await this.detectLanguage(this.inputText.value)
-      this.sourceLanguage.value = detectdLanguage
+      const detectedLanguage = await this.detectLanguage(this.inputText.value)
+      this.sourceLanguage.value = detectedLanguage
     }
 
     // intercambiar los valores
