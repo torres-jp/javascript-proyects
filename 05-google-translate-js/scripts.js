@@ -34,11 +34,11 @@ class GoogleTranslator {
 
     this.sourceLanguage = $('#sourceLanguage')
     this.targetLanguage = $('#targetLanguage')
-    this.swapLanguages = $('#swapLanguages')
 
     this.micButton = $('#micButton')
     this.copyButton = $('#copyButton')
     this.speakerButton = $('#speakerButton')
+    this.swapLanguagesButton = $('#swapLanguages')
 
     // configuracion inicial
     this.targetLanguage.value = GoogleTranslator.DEFAULT_TARGET_LANGUAGE
@@ -70,7 +70,9 @@ class GoogleTranslator {
     this.sourceLanguage.addEventListener('change', () => this.translate())
     this.targetLanguage.addEventListener('change', () => this.translate())
 
-    this.swapLanguages.addEventListener('click', () => this.swapLanguages())
+    this.swapLanguagesButton.addEventListener('click', () =>
+      this.swapLanguages()
+    )
   }
 
   debounceTranslate() {
@@ -80,8 +82,25 @@ class GoogleTranslator {
     }, 500)
   }
 
+  updatedDetectedLanguage(detectedLanguage) {
+    // Actualizar visualmente el idioma detectado
+    const option = this.sourceLanguage.querySelector(
+      `option[value="${detectedLanguage}"]`
+    )
+
+    if (option) {
+      const autoOption =
+        this.sourceLanguage.querySelector(`option[value="auto"]`)
+      autoOption.textContent = `Detectar idioma (${option.textContent})`
+    }
+  }
+
   async getTranslation(text) {
-    const sourceLanguage = this.sourceLanguage.value
+    const sourceLanguage =
+      this.sourceLanguage.value === 'auto'
+        ? await this.detectLanguage(text)
+        : this.sourceLanguage.value
+
     const targetLanguage = this.targetLanguage.value
 
     if (sourceLanguage === targetLanguage) return text
@@ -144,6 +163,11 @@ class GoogleTranslator {
 
     this.outputText.textContent = 'Traduciendo...'
 
+    if (this.sourceLanguage.value === 'auto') {
+      const detectedLanguage = await this.detectLanguage(text)
+      this.updatedDetectedLanguage(detectedLanguage)
+    }
+
     try {
       const translation = await this.getTranslation(text)
       this.outputText.textContent = translation
@@ -158,9 +182,13 @@ class GoogleTranslator {
     }
   }
 
-  async swapLanguage() {
+  async swapLanguages() {
     // primero detectar si sourcelanguage es 'auto' para saber
     // que idioma pasar al output
+    if (this.sourceLanguage.value === 'auto') {
+      const detectdLanguage = await this.detectLanguage(this.inputText.value)
+      this.sourceLanguage.value = detectdLanguage
+    }
 
     // intercambiar los valores
     const temporalLanguage = this.sourceLanguage.value
@@ -178,8 +206,23 @@ class GoogleTranslator {
     // restaurar la opcion de auto-detectar
   }
 
-  async detecLanguage() {
-    return 'es'
+  async detectLanguage(text) {
+    try {
+      if (!this.currentDetector) {
+        this.currentDetector = await window.LanguageDetector.create({
+          expectedInputLanguages: GoogleTranslator.SUPPORTED_LANGUAGES,
+        })
+      }
+      const results = await this.currentDetector.detect(text)
+      const detectedLanguage = results[0]?.detectedLanguage
+
+      return detectedLanguage === 'und'
+        ? GoogleTranslator.DEFAULT_SOURCE_LANGUAGE
+        : detectedLanguage
+    } catch (error) {
+      console.error('No se pudo identificar el idioma: ', error)
+      return GoogleTranslator.DEFAULT_SOURCE_LANGUAGE
+    }
   }
 }
 
